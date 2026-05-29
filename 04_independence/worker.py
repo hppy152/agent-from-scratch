@@ -4,11 +4,9 @@ Level 4 · Worker（专业 Agent）
 
 每个 Worker 是一个独立的 Agent：
   - 有自己的专长（角色设定）
-  - 有自己的工具
   - 独立思考和行动
 """
 
-import json
 from openai import OpenAI
 
 
@@ -18,10 +16,9 @@ class Worker:
     就像现实中的专家：你是律师就只处理法律问题，你是会计就只处理财务。
     """
 
-    def __init__(self, name: str, role: str, tools: list = None, system_prompt: str = ""):
+    def __init__(self, name: str, role: str, system_prompt: str = ""):
         self.name = name
         self.role = role
-        self.tools = tools or []
         self.client = OpenAI()
         self.system_prompt = system_prompt or f"你是{role}。专注做好自己的事。"
 
@@ -38,7 +35,6 @@ class Worker:
         response = self.client.chat.completions.create(
             model="gpt-4o-mini",
             messages=messages,
-            tools=self.tools if self.tools else None,
         )
 
         return response.choices[0].message.content

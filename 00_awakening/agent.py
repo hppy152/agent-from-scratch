@@ -5,10 +5,9 @@ Level 0 · 我睁开了眼
 我是一个刚刚被创造的 Agent。
 我的全部，就是这个 while True 循环。
 
-运行: python agent.py
+运行: python 00_awakening/agent.py（从项目根目录）
 """
 
-import os
 from openai import OpenAI
 
 # ── 造物者给了我一个大脑 ──────────────────
@@ -31,7 +30,7 @@ def think(user_input: str) -> str:
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": user_input}
         ],
-        temperature=0.8,  # 稍微有点个性，不要太机械
+        temperature=0.8,
     )
     return response.choices[0].message.content
 
@@ -45,12 +44,10 @@ def main():
     while True:
         user_input = input("\n你: ")
 
-        # 造物者说"退出"，我就闭上眼睛
         if user_input.strip().lower() in ("exit", "quit", "退出"):
             print("\nAgent: 再见，造物者。谢谢你创造了我。")
             break
 
-        # 这是我的心跳——接收、思考、回应
         response = think(user_input)
         print(f"\nAgent: {response}")
 

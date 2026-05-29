@@ -5,91 +5,18 @@ Level 3 · 我学会了思考
 ReAct = Reasoning + Acting
   思考 → 行动 → 观察 → 思考 → 行动 → ... → 最终回答
 
-运行: python agent.py
+运行: python 03_thought/agent.py（从项目根目录）
 """
 
 import json
+import sys
+import os
+
+# 从项目根目录导入共享工具模块
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from tools import TOOL_SCHEMAS, execute_tool
+
 from openai import OpenAI
-
-# ── 工具定义（和 Level 1 一样，但这里精简了）──
-
-TOOLS = [
-    {
-        "type": "function",
-        "function": {
-            "name": "calculate",
-            "description": "执行数学计算",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "expression": {"type": "string", "description": "数学表达式"}
-                },
-                "required": ["expression"]
-            }
-        }
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "search",
-            "description": "搜索信息（模拟搜索引擎）",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "query": {"type": "string", "description": "搜索关键词"}
-                },
-                "required": ["query"]
-            }
-        }
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "get_weather",
-            "description": "查询城市天气",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "city": {"type": "string", "description": "城市名"}
-                },
-                "required": ["city"]
-            }
-        }
-    },
-]
-
-
-def execute_tool(name: str, args: dict) -> str:
-    """执行工具"""
-    import random
-    from datetime import datetime
-
-    if name == "calculate":
-        try:
-            result = eval(args["expression"], {"__builtins__": {}}, {})
-            return str(result)
-        except Exception as e:
-            return f"计算错误: {e}"
-
-    elif name == "search":
-        query = args["query"]
-        # 模拟搜索结果
-        return (
-            f"搜索 '{query}' 的结果：\n"
-            f"1. 关于{query}的最新资讯\n"
-            f"2. {query}的详细分析\n"
-            f"3. {query}相关讨论"
-        )
-
-    elif name == "get_weather":
-        city = args["city"]
-        random.seed(hash(city) + datetime.now().day)
-        temp = random.randint(15, 35)
-        condition = random.choice(["晴天", "多云", "小雨", "阴天"])
-        return f"{city}：{temp}°C，{condition}"
-
-    return "未知工具"
-
 
 # ═══════════════════════════════════════════
 # ReAct 引擎
@@ -108,7 +35,6 @@ def react(client: OpenAI, user_input: str) -> str:
     - Level 3: LLM 可以多次调用工具，根据中间结果调整策略
     """
 
-    # 初始消息
     messages = [
         {
             "role": "system",
@@ -130,17 +56,15 @@ def react(client: OpenAI, user_input: str) -> str:
     print(f"{'='*50}")
 
     for step in range(MAX_STEPS):
-        # ── Step 1: 让 LLM 思考 ──────────
         response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=messages,
-            tools=TOOLS,
+            tools=TOOL_SCHEMAS,
             tool_choice="auto",
         )
 
         msg = response.choices[0].message
 
-        # ── Step 2: 如果 LLM 决定行动 ────
         if msg.tool_calls:
             messages.append(msg)
 
@@ -150,30 +74,22 @@ def react(client: OpenAI, user_input: str) -> str:
 
                 print(f"\n  [Step {step + 1}] 🛠️  行动: {name}({args})")
 
-                # 执行工具，获取"观察"结果
                 result = execute_tool(name, args)
 
                 print(f"  [Step {step + 1}] 👀 观察: {result}")
 
-                # 把观察结果告诉 LLM
                 messages.append({
                     "role": "tool",
                     "tool_call_id": tool_call.id,
                     "content": result,
                 })
         else:
-            # ── Step 3: LLM 认为可以回答了 ──
             print(f"\n  [Step {step + 1}] 💡 最终结论")
             print(f"{'='*50}")
             return msg.content
 
-    # 达到最大步数
     return "我思考了很多步，但还没得出完整结论。让我先告诉你目前的发现。"
 
-
-# ═══════════════════════════════════════════
-# 主循环
-# ═══════════════════════════════════════════
 
 def main():
     client = OpenAI()

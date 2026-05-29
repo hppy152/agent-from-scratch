@@ -6,10 +6,18 @@ Level 4 · 我找到了同伴
   - Orchestrator（指挥官）：理解需求、分配任务、汇总结果
   - Worker（专家）：各自的专业领域
 
-运行: python orchestrator.py
+运行: python 04_independence/orchestrator.py（从项目根目录）
 """
 
 import json
+import sys
+import os
+
+# 从项目根目录导入
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# 当前目录（worker.py 所在位置）
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 from openai import OpenAI
 from worker import Worker, create_searcher, create_analyst, create_writer
 
@@ -39,7 +47,6 @@ class Orchestrator:
         输入用户请求，输出任务列表：[{"worker": "xxx", "task": "xxx"}]
         """
 
-        # 构造 worker 描述列表
         worker_list = "\n".join(
             f"  - {name}: {w.role}" for name, w in self.workers.items()
         )
@@ -64,7 +71,6 @@ class Orchestrator:
         result = response.choices[0].message.content
         parsed = json.loads(result)
 
-        # 兼容 {"tasks": [...]} 和 [...] 两种格式
         if isinstance(parsed, dict):
             tasks = parsed.get("tasks", parsed.get("plan", []))
         else:
@@ -76,7 +82,6 @@ class Orchestrator:
         """
         完整流程：规划 → 执行 → 汇总
         """
-        # ── Phase 1: 规划 ──────────────────
         print(f"\n{'━'*60}")
         print(f"📋 Orchestrator 收到任务: {user_request}")
         print(f"{'━'*60}")
@@ -89,7 +94,6 @@ class Orchestrator:
             task_desc = task.get("task", "unknown")
             print(f"  {i}. → {worker_name}: {task_desc[:60]}...")
 
-        # ── Phase 2: 执行 ──────────────────
         print(f"\n{'━'*60}")
         print(f"⚡ 开始执行...")
         print(f"{'━'*60}")
@@ -111,7 +115,6 @@ class Orchestrator:
             print(f"  ✅ {worker.name} 完成！")
             print(f"     摘要: {result[:80]}...")
 
-        # ── Phase 3: 汇总 ──────────────────
         print(f"\n{'━'*60}")
         print(f"📊 汇总结果...")
         print(f"{'━'*60}")
@@ -152,7 +155,6 @@ class Orchestrator:
 # ═══════════════════════════════════════════
 
 def main():
-    # 组建团队
     orch = Orchestrator()
     orch.add_worker(create_searcher())
     orch.add_worker(create_analyst())

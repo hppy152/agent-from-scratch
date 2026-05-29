@@ -7,12 +7,20 @@ Level 2 · 我开始记住事情
   - 中期：对话太长时自动压缩为摘要
   - 长期：重要的事实保存到文件，跨对话不丢
 
-运行: python agent.py
+运行: python 02_memory/agent.py（从项目根目录）
 """
 
 import json
-from openai import OpenAI
+import sys
+import os
+
+# 从项目根目录导入共享工具模块
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# 当前目录（memory.py 所在位置）
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from tools import TOOL_SCHEMAS, execute_tool
+
+from openai import OpenAI
 from memory import ConversationBuffer, LongTermMemory, extract_facts_from_message
 
 # ── 大脑 ────────────────────────────────
@@ -34,20 +42,14 @@ def chat(buffer: ConversationBuffer, ltm: LongTermMemory, user_input: str) -> st
     4. 自动提取值得记住的事实
     """
 
-    # ── 构建带记忆的上下文 ────────────────
-
-    # 把长期记忆注入 system prompt
     ltm_context = ltm.recall()
     messages = buffer.get_messages()
 
-    # 在 system prompt 后面追加长期记忆
     if ltm_context:
         messages[0] = {
             "role": "system",
             "content": SYSTEM_PROMPT + f"\n\n你记得的长期记忆：\n{ltm_context}"
         }
-
-    # ── 正常的 agent 循环（和 Level 1 一样）──
 
     response = client.chat.completions.create(
         model="gpt-4o-mini",
@@ -58,7 +60,6 @@ def chat(buffer: ConversationBuffer, ltm: LongTermMemory, user_input: str) -> st
 
     msg = response.choices[0].message
 
-    # 处理工具调用
     if msg.tool_calls:
         messages.append(msg)
         for tool_call in msg.tool_calls:
@@ -77,13 +78,9 @@ def chat(buffer: ConversationBuffer, ltm: LongTermMemory, user_input: str) -> st
         )
         msg = response.choices[0].message
 
-    # ── 保存记忆 ──────────────────────────
-
-    # 把用户消息和 Agent 回复加入短期记忆
     buffer.add({"role": "user", "content": user_input})
     buffer.add({"role": "assistant", "content": msg.content})
 
-    # 自动提取值得长期记忆的事实
     facts = extract_facts_from_message(user_input)
     for fact in facts:
         ltm.remember(fact, category="user_info")
@@ -92,11 +89,9 @@ def chat(buffer: ConversationBuffer, ltm: LongTermMemory, user_input: str) -> st
 
 
 def main():
-    # 初始化记忆系统
     buffer = ConversationBuffer(max_messages=20)
     ltm = LongTermMemory("long_term_memory.json")
 
-    # System prompt 作为对话的第一条消息
     buffer.add({"role": "system", "content": SYSTEM_PROMPT})
 
     print("=" * 50)

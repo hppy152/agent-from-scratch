@@ -1,31 +1,75 @@
 """
-Level 1 · 工具定义
+共享工具模块
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-这里定义了 Agent 能使用的全部工具。
-每个工具都有：
-  1. JSON Schema 描述（告诉 LLM 这个工具是干什么的）
-  2. 执行函数（真正干活的代码）
+所有 Level 共用的工具定义和执行器。
+这样每个 Level 的 agent.py 都可以从根目录直接运行。
 
-你可以在这里添加任意工具。
+用法（从项目根目录）:
+    python 00_awakening/agent.py
+    python 01_hands/agent.py
 """
 
-import math
+import ast
+import operator
 import json
+import math
+import random
 from datetime import datetime
 
 
 # ═══════════════════════════════════════════
-# 工具注册表
+# 安全的数学计算（替代 eval）
 # ═══════════════════════════════════════════
 
-# 这份"菜单"会告诉 LLM：你有哪些工具可以用，每个工具需要什么参数
+SAFE_OPERATORS = {
+    ast.Add: operator.add,
+    ast.Sub: operator.sub,
+    ast.Mult: operator.mul,
+    ast.Div: operator.truediv,
+    ast.FloorDiv: operator.floordiv,
+    ast.Mod: operator.mod,
+    ast.Pow: operator.pow,
+    ast.USub: operator.neg,
+    ast.UAdd: operator.pos,
+}
+
+
+def safe_calculate(expression: str) -> float:
+    """
+    安全地计算数学表达式，不使用 eval()。
+    只支持基本运算：+ - * / // % **
+    """
+    tree = ast.parse(expression, mode='eval')
+
+    def _eval(node):
+        if isinstance(node, ast.Expression):
+            return _eval(node.body)
+        elif isinstance(node, ast.Constant):
+            return node.value
+        elif isinstance(node, ast.BinOp):
+            left = _eval(node.left)
+            right = _eval(node.right)
+            return SAFE_OPERATORS[type(node.op)](left, right)
+        elif isinstance(node, ast.UnaryOp):
+            operand = _eval(node.operand)
+            return SAFE_OPERATORS[type(node.op)](operand)
+        else:
+            raise ValueError(f"不支持的表达式: {ast.dump(node)}")
+
+    return _eval(tree)
+
+
+# ═══════════════════════════════════════════
+# 工具 Schema（告诉 LLM 有哪些工具可用）
+# ═══════════════════════════════════════════
+
 TOOL_SCHEMAS = [
     {
         "type": "function",
         "function": {
             "name": "calculate",
-            "description": "执行数学计算。支持加减乘除、幂运算等。",
+            "description": "执行安全的数学计算。支持加减乘除、幂运算等。",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -74,10 +118,6 @@ TOOL_SCHEMAS = [
 # 工具执行器
 # ═══════════════════════════════════════════
 
-# 这是真正"动手"的地方。
-# LLM 说"我想调用 calculate，参数是 3**17"
-# 这段代码就真的去算 3**17，然后把结果返回。
-
 def execute_tool(name: str, arguments: dict) -> str:
     """
     根据 LLM 的选择，执行对应的工具函数。
@@ -85,15 +125,11 @@ def execute_tool(name: str, arguments: dict) -> str:
     """
     try:
         if name == "calculate":
-            # 注意：生产环境请用更安全的方式执行数学表达式
-            result = eval(arguments["expression"], {"__builtins__": {}}, {"math": math})
+            result = safe_calculate(arguments["expression"])
             return f"计算结果: {result}"
 
         elif name == "get_weather":
-            # 模拟天气数据（实际项目中调用真实 API）
             city = arguments["city"]
-            # 这里用伪随机模拟不同城市的天气
-            import random
             random.seed(hash(city) + datetime.now().day)
             temp = random.randint(15, 35)
             conditions = ["晴天", "多云", "小雨", "阴天", "大风"]
