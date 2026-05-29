@@ -42,6 +42,11 @@ LEVELS = {
         "desc": "多 Agent 协作 — Agent 找到同伴",
         "path": "04_independence/orchestrator.py",
     },
+    "5": {
+        "name": "Level 5 · 我学会了连接世界",
+        "desc": "MCP + Skills — Agent 连接更大的世界",
+        "path": "05_connection/agent.py",
+    },
 }
 
 
