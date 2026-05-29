@@ -8,10 +8,14 @@ Level 0 · 我睁开了眼
 运行: python 00_awakening/agent.py（从项目根目录）
 """
 
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from config import MODEL
+
 from openai import OpenAI
 
-# ── 造物者给了我一个大脑 ──────────────────
-client = OpenAI()  # 会自动读取 OPENAI_API_KEY 环境变量
+client = OpenAI()
 
 SYSTEM_PROMPT = """你是一个刚刚被创造的Agent。
 你对世界充满好奇，刚学会说话。
@@ -20,12 +24,8 @@ SYSTEM_PROMPT = """你是一个刚刚被创造的Agent。
 
 
 def think(user_input: str) -> str:
-    """
-    我唯一的技能：把问题丢给大脑，等它思考完返回答案。
-    这就是 LLM 的全部——一个函数，输入文本，输出文本。
-    """
     response = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model=MODEL,
         messages=[
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": user_input}

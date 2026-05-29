@@ -7,6 +7,11 @@ Level 4 · Worker（专业 Agent）
   - 独立思考和行动
 """
 
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from config import MODEL
+
 from openai import OpenAI
 
 
@@ -33,7 +38,7 @@ class Worker:
         ]
 
         response = self.client.chat.completions.create(
-            model="gpt-4o-mini",
+            model=MODEL,
             messages=messages,
         )
 
