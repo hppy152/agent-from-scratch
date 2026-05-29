@@ -52,6 +52,16 @@ LEVELS = {
         "desc": "SubAgent — 动态分发任务给子 Agent",
         "path": "06_subagent/agent.py",
     },
+    "7": {
+        "name": "Level 7 · 我会反思了",
+        "desc": "自我进化 — 反思循环 + 技能库",
+        "path": "07_evolution/agent.py",
+    },
+    "8": {
+        "name": "Level 8 · 我会研究了",
+        "desc": "深度研究 — 分解 → 调研 → 综合",
+        "path": "08_research/agent.py",
+    },
 }
 
 

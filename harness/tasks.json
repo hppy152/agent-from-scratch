@@ -121,6 +121,38 @@
       "expected_tool": "calculate",
       "scorer": "tool",
       "description": "SubAgent：研究员应调用计算工具"
+    },
+    {
+      "id": "L7-01",
+      "level": "7",
+      "input": "帮我算一下 abc 的值",
+      "expected": "",
+      "scorer": "any",
+      "description": "自我进化：失败后应自动反思"
+    },
+    {
+      "id": "L7-02",
+      "level": "7",
+      "input": "帮我算 3 的 5 次方",
+      "expected_tool": "calculate",
+      "scorer": "tool",
+      "description": "自我进化：成功后应提取技能"
+    },
+    {
+      "id": "L8-01",
+      "level": "8",
+      "input": "Python 和 Go 哪个更适合写 Web 服务器",
+      "expected": "",
+      "scorer": "any",
+      "description": "深度研究：应分解问题并调研"
+    },
+    {
+      "id": "L8-02",
+      "level": "8",
+      "input": "现在 AI Agent 最热门的框架有哪些",
+      "expected": "",
+      "scorer": "any",
+      "description": "深度研究：应搜索并综合信息"
     }
   ]
 }
