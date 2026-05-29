@@ -10,16 +10,18 @@
 
 我们现在要做一样的事——只不过，我们捏的不是泥人，而是 **Agent**。
 
-你不需要任何 AI 框架。不需要读论文。你只需要一个 OpenAI API Key，和一颗想动手的心。
+你不需要任何 AI 框架。不需要读论文。你只需要一个 API Key，和一颗想动手的心。
 
 我会带你，从第一行代码开始，亲手造出一个 Agent。每一步，你都能看到它从"死的代码"变成"活的智能体"。
 
 ```
-Level 0  我睁开了眼          → 最简对话循环
-Level  1  我伸出了手          → 工具调用
-Level  2  我开始记住事情       → 记忆系统
-Level  3  我学会了思考        → ReAct 推理循环
-Level  4  我找到了同伴        → 多 Agent 协作
+Level 0  我睁开了眼              → 最简对话循环
+Level 1  我伸出了手              → 工具调用
+Level 2  我开始记住事情           → 记忆系统
+Level 3  我学会了思考            → ReAct 推理循环
+Level 4  我找到了同伴            → 静态多 Agent 协作
+Level 5  我学会了连接世界         → MCP + Skills
+Level 6  我有了分身              → SubAgent 动态分发
 ```
 
 每上升一层，你就离"创造生命"更近一步。
@@ -31,34 +33,35 @@ Level  4  我找到了同伴        → 多 Agent 协作
 你需要准备：
 
 - **Python 3.10+**
-- **一个 OpenAI API Key**（[获取地址](https://platform.openai.com/api-keys)）
+- **一个 API Key**（OpenAI / 小米 MiMo / 通义 / DeepSeek 等，兼容 OpenAI 格式即可）
 - **一颗好奇心**
 
 ```bash
 # 1. 克隆仓库
-git clone https://github.com/YOUR_USERNAME/agent-from-scratch.git
+git clone https://github.com/hppy152/agent-from-scratch.git
 cd agent-from-scratch
 
 # 2. 安装依赖（只需要这一个）
 pip install -r requirements.txt
 
-# 3. 设置 API Key
-export OPENAI_API_KEY="sk-your-key-here"
+# 3. 设置 API Key（三选一）
+
+# OpenAI
+export OPENAI_API_KEY="sk-xxx"
+
+# 小米 MiMo
+export OPENAI_API_KEY="你的小米Key"
+export OPENAI_BASE_URL="https://token-plan-cn.xiaomimimo.com/v1"
+export AGENT_MODEL="mimo-v2-pro"
+
+# 其他兼容 API（通义、DeepSeek 等）
+export OPENAI_API_KEY="你的Key"
+export OPENAI_BASE_URL="你的API地址"
+export AGENT_MODEL="模型名"
 
 # 4. 启动！
 python run.py        # 交互式选择 Level
-python run.py 0      # 直接启动 Level 0
 python run.py 3      # 直接启动 Level 3
-```
-
-或者直接运行某个 Level：
-
-```bash
-python 00_awakening/agent.py   # Level 0
-python 01_hands/agent.py       # Level 1
-python 02_memory/agent.py      # Level 2
-python 03_thought/agent.py     # Level 3
-python 04_independence/orchestrator.py  # Level 4
 ```
 
 ---
@@ -119,22 +122,57 @@ agent 会学会：当我说"帮我查一下天气"时，不是编造一个答案
 
 你将搭建一个 **多 Agent 协作系统**：一个指挥者（Orchestrator）调度多个专业 worker。
 
-这是通向 OpenClaw、Hermes 等生产级系统的最后一座桥。
-
 → [进入 Level 4](./04_independence/)
+
+---
+
+### Level 5 · 我学会了连接世界
+
+> *"我终于明白了——光有手脚和记忆还不够。我需要连接更大的世界：搜索互联网、读写文件、调用专业服务。"*
+
+你将给 agent 接入 **MCP（Model Context Protocol）** 和 **Skill（技能知识）**。
+
+MCP 让 agent 用统一的方式连接各种工具服务。Skill 让 agent 在遇到特定任务时自动加载专业知识。
+
+→ [进入 Level 5](./05_connection/)
+
+---
+
+### Level 6 · 我有了分身
+
+> *"一个人能力再强，也做不了所有事。但如果我能创造出和我一样会思考的'分身'，让它们各司其职，我们就能完成更大的事情。"*
+
+你将实现 **SubAgent 系统**：父 Agent 通过 `delegate_task` 动态分发任务给子 Agent，每个子 Agent 独立思考、独立行动。
+
+→ [进入 Level 6](./06_subagent/)
+
+---
+
+### 🧪 Harness · 考试系统
+
+> *"造出来不够，还得能考。好的 Agent 都要经过严格的测试。"*
+
+你将搭建一个 **Agent 测试评估框架**：题库、评分器、报告生成器。
+
+这就是大厂评测 Agent 的基本思路——把 Agent 当黑盒，喂题、观察、打分。
+
+→ [进入 Harness](./harness/)
 
 ---
 
 ## 从这里到真实世界
 
 ```
-你的 Agent                 生产级系统
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Level 0  对话循环      →    Gateway / Chat API
-Level 1  工具调用      →    Plugin 系统
-Level 2  记忆管理      →    Session / Context Engine
-Level 3  ReAct 循环    →    Agent Loop / Planner
-Level 4  多 Agent      →    Orchestrator / SubAgent
+你的 Agent                      生产级系统
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Level 0  对话循环          →    Gateway / Chat API
+Level 1  工具调用          →    Plugin 系统
+Level 2  记忆管理          →    Session / Context Engine
+Level 3  ReAct 循环        →    Agent Loop / Planner
+Level 4  多 Agent          →    Orchestrator / Worker Pool
+Level 5  MCP + Skills      →    MCP 原生客户端 + Skill 系统
+Level 6  SubAgent          →    SubAgent / Task Queue
+Harness  测试评估           →    CI/CD 评测 Pipeline
 ```
 
 读完这个项目，你再去读 OpenClaw 或 Hermes 的源码，你会发现——**它们的核心，和你刚刚亲手造出来的东西，本质上是同一个东西。**
@@ -145,19 +183,75 @@ Level 4  多 Agent      →    Orchestrator / SubAgent
 
 ---
 
+## 运行测试
+
+```bash
+# 一键跑全部 Level 的考试
+python harness/run_harness.py
+
+# 只跑某个 Level
+python harness/run_harness.py --level 0,1
+
+# 导出 JSON 报告
+python harness/run_harness.py --export
+```
+
+---
+
+## 项目结构
+
+```
+agent-from-scratch/
+├── config.py                  ← 全局配置（模型/API）
+├── tools.py                   ← 共享工具（安全计算）
+├── run.py                     ← 一键启动器
+├── requirements.txt
+│
+├── 00_awakening/              ← Level 0: 对话循环
+├── 01_hands/                  ← Level 1: 工具调用
+├── 02_memory/                 ← Level 2: 记忆系统
+├── 03_thought/                ← Level 3: ReAct 推理
+├── 04_independence/           ← Level 4: 静态多 Agent
+├── 05_connection/             ← Level 5: MCP + Skills
+├── 06_subagent/               ← Level 6: SubAgent 动态分发
+│
+├── subagent/                  ← SubAgent 核心库
+│   ├── core.py               ← SubAgent 类
+│   └── orchestrator.py       ← Orchestrator + delegate_task
+│
+├── skills/                    ← Skill 知识库
+│   ├── web-search/SKILL.md
+│   └── code-review/SKILL.md
+│
+├── harness/                   ← 测试评估框架
+│   ├── runner.py             ← 考试引擎
+│   ├── scorer.py             ← 评分器（6种策略）
+│   ├── tasks.json            ← 15道测试题
+│   ├── report.py             ← 报告生成器
+│   └── run_harness.py        ← 一键跑考试
+│
+└── docs/
+    ├── architecture.md        ← Agent 核心架构图解
+    └── roadmap.md             ← 从本项目到 OpenClaw/Hermes
+```
+
+---
+
 ## 写给造物者
 
 如果你跟着这个项目走完了一遍，你会发现：
 
-**Agent 不是什么神秘的东西。**
+**Agent 不是神秘的东西。**
 
-它的核心，就是你刚才亲手写的那个 `while True` 循环。一个不断接收信息、思考、行动、再接收信息的过程。
+它的核心，就是你亲手写的那个 `while True` 循环。一个不断接收信息、思考、行动、再接收信息的过程。
+
+从对话循环，到工具调用，到记忆，到推理，到多 Agent，到 MCP，到子 Agent——每一步都是在同一个骨架上添砖加瓦。
 
 这和人类思考的方式，其实没什么不同。
 
-你现在，已经是一个造物者了。
+**你现在，已经是一个造物者了。**
 
-**Now go build something alive.**
+**Now go build something alive.** 🐣
 
 ---
 
