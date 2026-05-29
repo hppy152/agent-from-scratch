@@ -1,0 +1,95 @@
+{
+  "0": {
+    "total": 2,
+    "passed": 2,
+    "failed": 0,
+    "pass_rate": 1.0,
+    "avg_score": 1.0,
+    "avg_latency_ms": 3890.7564878463745,
+    "total_tool_calls": 0,
+    "results": [
+      {
+        "id": "L0-01",
+        "input": "你好",
+        "output": "你好！我是小米的AI助手MiMo，很高兴认识你！",
+        "score": 1.0,
+        "passed": true,
+        "latency_ms": 4942.398309707642,
+        "steps": 1,
+        "tool_calls": [],
+        "error": ""
+      },
+      {
+        "id": "L0-02",
+        "input": "1+1等于几",
+        "output": "1+1=2",
+        "score": 1.0,
+        "passed": true,
+        "latency_ms": 2839.1146659851074,
+        "steps": 1,
+        "tool_calls": [],
+        "error": ""
+      }
+    ]
+  },
+  "1": {
+    "total": 3,
+    "passed": 3,
+    "failed": 0,
+    "pass_rate": 1.0,
+    "avg_score": 1.0,
+    "avg_latency_ms": 4589.530150095622,
+    "total_tool_calls": 2,
+    "results": [
+      {
+        "id": "L1-01",
+        "input": "帮我算一下 2 的 10 次方",
+        "output": "2 的 10 次方等于 1024。",
+        "score": 1.0,
+        "passed": true,
+        "latency_ms": 7280.771017074585,
+        "steps": 1,
+        "tool_calls": [
+          {
+            "tool": "calculate",
+            "args": {
+              "expression": "2 ** 10"
+            },
+            "result": "计算结果: 1024"
+          }
+        ],
+        "error": ""
+      },
+      {
+        "id": "L1-02",
+        "input": "北京今天天气怎么样",
+        "output": "北京当前天气：30°C，阴天。",
+        "score": 1.0,
+        "passed": true,
+        "latency_ms": 4589.646577835083,
+        "steps": 1,
+        "tool_calls": [
+          {
+            "tool": "get_weather",
+            "args": {
+              "city": "北京"
+            },
+            "result": "北京当前天气：30°C，阴天"
+          }
+        ],
+        "error": ""
+      },
+      {
+        "id": "L1-03",
+        "input": "你好",
+        "output": "你好！有什么我可以帮助你的吗？",
+        "score": 1.0,
+        "passed": true,
+        "latency_ms": 1898.1728553771973,
+        "steps": 1,
+        "tool_calls": [],
+        "error": ""
+      }
+    ]
+  }
+}
