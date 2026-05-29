@@ -275,6 +275,72 @@ def make_level5_agent():
 
 
 # ═══════════════════════════════════════════
+# Level 6 适配器：SubAgent 分身
+# ═══════════════════════════════════════════
+
+def make_level6_agent():
+    """创建 Level 6 Agent 的可测试版本（SubAgent）"""
+    from config import MODEL
+    from tools import TOOL_SCHEMAS, execute_tool
+    sys.path.insert(0, os.path.join(ROOT, "subagent"))
+    from core import SubAgent
+    from orchestrator import SubAgentOrchestrator
+
+    orch = SubAgentOrchestrator(model=MODEL)
+
+    researcher = SubAgent(
+        name="研究员", model=MODEL,
+        system_prompt="你是信息研究专家。调研、搜索、整理信息。回答简洁。",
+        tools=TOOL_SCHEMAS, tool_executor=execute_tool, max_steps=5,
+    )
+    analyst = SubAgent(
+        name="分析师", model=MODEL,
+        system_prompt="你是数据分析专家。分析、对比、找规律。给出清晰结论。",
+        tools=TOOL_SCHEMAS, tool_executor=execute_tool, max_steps=3,
+    )
+    writer = SubAgent(
+        name="写手", model=MODEL,
+        system_prompt="你是写作专家。把信息整理成清晰的文字。简洁有力。",
+        tools=[], tool_executor=None, max_steps=2,
+    )
+
+    orch.register_agent(researcher)
+    orch.register_agent(analyst)
+    orch.register_agent(writer)
+
+    def agent_fn(user_input: str) -> AgentResponse:
+        plan = orch.plan(user_input)
+        all_tool_calls = []
+        total_steps = 0
+        parts = []
+
+        for st in plan.subtasks:
+            agent_name = st.get("agent", "")
+            task_desc = st.get("task", "")
+            resp = orch.delegate_task(agent_name, task_desc)
+            all_tool_calls.extend(resp.tool_calls)
+            total_steps += resp.steps
+            parts.append(f"{agent_name}: {resp.result}")
+
+        combined = "\n\n".join(parts)
+        client = OpenAI()
+        response = client.chat.completions.create(
+            model=MODEL,
+            messages=[
+                {"role": "system", "content": "整合多个子Agent的结果，给出完整回答。"},
+                {"role": "user", "content": f"请求: {user_input}\n\n结果:\n{combined}"}
+            ],
+            max_tokens=300,
+        )
+        return AgentResponse(
+            output=response.choices[0].message.content,
+            tool_calls=all_tool_calls, steps=total_steps,
+        )
+
+    return agent_fn
+
+
+# ═══════════════════════════════════════════
 # 主程序
 # ═══════════════════════════════════════════
 
@@ -284,6 +350,7 @@ LEVEL_FACTORIES = {
     "2": ("记忆系统", make_level2_agent),
     "3": ("ReAct 推理", make_level3_agent),
     "5": ("MCP + Skills", make_level5_agent),
+    "6": ("SubAgent 分身", make_level6_agent),
 }
 
 

@@ -47,6 +47,11 @@ LEVELS = {
         "desc": "MCP + Skills — Agent 连接更大的世界",
         "path": "05_connection/agent.py",
     },
+    "6": {
+        "name": "Level 6 · 我有了分身",
+        "desc": "SubAgent — 动态分发任务给子 Agent",
+        "path": "06_subagent/agent.py",
+    },
 }
 
 

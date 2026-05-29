@@ -105,6 +105,22 @@
       "expected": "",
       "scorer": "any",
       "description": "Skill：Agent 应匹配 code-review 技能"
+    },
+    {
+      "id": "L6-01",
+      "level": "6",
+      "input": "Python 和 Go 哪个更适合写 CLI",
+      "expected": "",
+      "scorer": "any",
+      "description": "SubAgent：Orchestrator 应分发给多个子 Agent 并综合"
+    },
+    {
+      "id": "L6-02",
+      "level": "6",
+      "input": "帮我算一下 2 的 10 次方，然后告诉我结果代表什么",
+      "expected_tool": "calculate",
+      "scorer": "tool",
+      "description": "SubAgent：研究员应调用计算工具"
     }
   ]
 }
