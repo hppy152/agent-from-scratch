@@ -3,3 +3,5 @@ __pycache__/
 *.pyo
 long_term_memory.json
 .env
+.env.*
+*.env
