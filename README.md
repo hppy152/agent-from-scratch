@@ -40,10 +40,25 @@ git clone https://github.com/YOUR_USERNAME/agent-from-scratch.git
 cd agent-from-scratch
 
 # 2. 安装依赖（只需要这一个）
-pip install openai
+pip install -r requirements.txt
 
 # 3. 设置 API Key
 export OPENAI_API_KEY="sk-your-key-here"
+
+# 4. 启动！
+python run.py        # 交互式选择 Level
+python run.py 0      # 直接启动 Level 0
+python run.py 3      # 直接启动 Level 3
+```
+
+或者直接运行某个 Level：
+
+```bash
+python 00_awakening/agent.py   # Level 0
+python 01_hands/agent.py       # Level 1
+python 02_memory/agent.py      # Level 2
+python 03_thought/agent.py     # Level 3
+python 04_independence/orchestrator.py  # Level 4
 ```
 
 ---
